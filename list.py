@@ -18,7 +18,9 @@ class List( tk.Frame ):
         self.master.geometry( f"{width}x{height}" )
         self.master.title( title )
 
-        self.out_folder = "out_folder\\"
+        self.out_folder = os.getcwd() + "\\out_folder\\"
+        self.temp_video = "temp_video"
+        self.temp_audio = "temp_audio"
 
         self.mode = mode
         print( self.mode )
@@ -91,7 +93,14 @@ class List( tk.Frame ):
         if ret == True:
             print( "Start" )
 
-            dl_title = self.file_name_variable( self.youtube.title )
+            #dl_title = self.file_name_variable( self.youtube.title )
+            if self.mode == "movie":
+                dl_title = self.temp_video
+            elif self.mode == "audio":
+                dl_title = self.temp_audio
+            else:
+                dl_title = self.file_name_variable( self.youtube.title )
+
             itag = self.select_list["6"]
             self.youtube.streams.get_by_itag( itag ).download( filename=dl_title, output_path=os.path.abspath( "out_folder" ) )
             if "audio/mp4" in self.item_text["5"]:
@@ -108,6 +117,9 @@ class List( tk.Frame ):
         ffmpeg.run( stream )# 実行
 
         os.remove( self.out_folder + file_name + ".mp4" )
+
+        if self.mode == "audio":
+            os.rename( self.out_folder + file_name + ".mp3", self.out_folder + self.file_name_variable( self.youtube.title ) + ".mp3" )
     
     def file_name_variable( self, name ):
         name = name.replace( "\\", "" )
@@ -123,28 +135,25 @@ class List( tk.Frame ):
         return name
 
     def select_movie( self ):
-        title = self.only_audio()
-        self.video_in_audio( title.split( "_audio" )[0] )
+        self.only_audio()
+        self.video_in_audio()
 
     def only_audio( self ):
         for item in self.youtube.streams.filter( file_extension='mp4', only_audio=True ).all():
-            dl_title = self.file_name_variable( self.youtube.title ) + "_audio"
+            #dl_title = self.file_name_variable( self.youtube.title ) + "_audio"
 
-            self.youtube.streams.get_by_itag( item.itag ).download( filename=dl_title, output_path=os.path.abspath( "out_folder" ) )
-            self.mp4_to_mp3( dl_title )
-
-            return dl_title
+            self.youtube.streams.get_by_itag( item.itag ).download( filename=self.temp_audio, output_path=os.path.abspath( "out_folder" ) )
+            self.mp4_to_mp3( self.temp_audio )
 
         
-
-    def video_in_audio( self, title ):
-        instream_v = ffmpeg.input( self.out_folder + title + ".mp4" )#映像の読み込み
-        instream_a = ffmpeg.input( self.out_folder + title + "_audio.mp3" )#音声の読み込み
+    def video_in_audio( self ):
+        instream_v = ffmpeg.input( self.out_folder + self.temp_video + ".mp4" )#映像の読み込み
+        instream_a = ffmpeg.input( self.out_folder + self.temp_audio + ".mp3" )#音声の読み込み
 
         #コーデックと出力ファイルの指定
-        stream = ffmpeg.output( instream_v, instream_a, self.out_folder + title + "_keg.mp4", vcodec="copy", acodec="copy" )
+        stream = ffmpeg.output( instream_v, instream_a, self.out_folder + self.file_name_variable( self.youtube.title ) + ".mp4", vcodec="copy", acodec="copy" )
         
         ffmpeg.run( stream )#実行
 
-        os.remove( self.out_folder + title + ".mp4" )
-        os.remove( self.out_folder + title + "_audio.mp3" )
+        os.remove( self.out_folder + self.temp_video + ".mp4" )
+        os.remove( self.out_folder + self.temp_audio + ".mp3" )

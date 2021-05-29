@@ -52,9 +52,12 @@ def main():
     root = tk.Tk()
     app = Application( master=root )
     app.mainloop()
+    
+
 
 #if __name__ == "__main__":
 main()
+
 
 #ffmpeg-python 映像と音声の結合
 #https://blog.syoukannoyakata.com/?p=205
