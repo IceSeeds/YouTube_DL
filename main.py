@@ -8,7 +8,8 @@ youtube_url = "https://www.youtube.com/watch?v=vjj16qog4vQ"
 
 youtube = pytube.YouTube( youtube_url )
 
-dl_title = youtube.title.replace( ".", "" )
+#youtube.streams.filter( file_extension='mp4', only_audio=True )
+#dl_title = youtube.title.replace( ".", "" )
 
 #print( os.path.abspath( "out_folder" ) )
 #dl_itag = youtube.streams.get_by_itag( 140 ).download( filename=dl_title, output_path=os.path.abspath( "out_folder" ) )
@@ -28,3 +29,6 @@ dl_title = youtube.title.replace( ".", "" )
 #format_list = pytube.YouTube( youtube_url ).streams.all()
 #for format in format_list:
 #    print( format.i )
+
+for item in youtube.streams.filter( file_extension='mp4', only_audio=True ).all():
+    print( item.itag )

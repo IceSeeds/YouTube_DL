@@ -6,7 +6,7 @@ from tkinter.constants import BOTTOM, CENTER, LEFT, TOP
 import list
 
 class Application( tk.Frame ):
-    def __init__( self, master, title="Youtube_Download  Ver 1.1", width=300, height=150 ):
+    def __init__( self, master, title="Youtube_Download  Ver 2.0", width=300, height=150 ):
         super().__init__( master )
         self.pack()
 
@@ -40,12 +40,13 @@ class Application( tk.Frame ):
     def callBack( self ):
         #self.youtube_url.get()
         youtube_url = self.youtube_url.get()
+        radio_get = self.str_var.get()
         
-        self.new_window( youtube_url )
+        self.new_window( youtube_url, radio_get )
         
-    def new_window( self, data ):
+    def new_window( self, data, mode ):
         self.newWindow = tk.Toplevel( self.master )
-        self.app2 = list.List( self.newWindow, data )
+        self.app2 = list.List( self.newWindow, data, mode )
 
 def main():
     root = tk.Tk()
@@ -54,3 +55,7 @@ def main():
 
 #if __name__ == "__main__":
 main()
+
+#ffmpeg-python 映像と音声の結合
+#https://blog.syoukannoyakata.com/?p=205
+#

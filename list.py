@@ -7,10 +7,11 @@ import tkinter.messagebox as messagebox
 
 import pytube
 import ffmpeg
+from pytube.__main__ import YouTube
 
 
 class List( tk.Frame ):
-    def __init__( self, master, list_data, title="LIST", width=720, height=500 ):
+    def __init__( self, master, list_data, mode="all", title="LIST", width=720, height=400 ):
         super().__init__( master )
         self.pack()
 
@@ -19,6 +20,8 @@ class List( tk.Frame ):
 
         self.out_folder = "out_folder\\"
 
+        self.mode = mode
+        print( self.mode )
         self.list_data = list_data
         self.youtube = pytube.YouTube( self.list_data )
 
@@ -44,7 +47,22 @@ class List( tk.Frame ):
         self.my_tree.column( 5, width=120 )
         self.my_tree.column( 6, width=120 )
 
-        format_list = pytube.YouTube( self.list_data ).streams.all()
+        self.mode_list()
+
+        self.my_tree.place( x=0, y=0 )
+
+        dl_run = ttk.Button( self.master, text="Download", command=self.callBack )
+        dl_run.pack( side=BOTTOM )
+
+    def mode_list( self ):
+        format_list = None
+        if self.mode == "all":
+            format_list = pytube.YouTube( self.list_data ).streams.all()
+        elif self.mode == "movie":
+            format_list = pytube.YouTube( self.list_data ).streams.filter( file_extension='mp4', only_video=True ).all()
+        else:
+            format_list = pytube.YouTube( self.list_data ).streams.filter( file_extension='mp4', only_audio=True ).all()
+
         for item in format_list:
             codec = ""
             if item.video_codec is None:
@@ -60,12 +78,6 @@ class List( tk.Frame ):
             
             self.my_tree.insert( parent="", index="end", values=( item.type, res, item.fps, codec, item.mime_type, item.itag ) )
             self.my_tree.bind("<<TreeviewSelect>>", self.on_tree_select )
-        
-
-        self.my_tree.place( x=0, y=0 )
-
-        dl_run = ttk.Button( self.master, text="Download", command=self.callBack )
-        dl_run.pack( side=BOTTOM )
 
     def on_tree_select( self, event ):
         #print("selected items:")
@@ -78,13 +90,18 @@ class List( tk.Frame ):
         ret = messagebox.askyesno( "confirmation", "以下の情報でDownloadしまか？\n【" + str( self.item_text ) + "】" )
         if ret == True:
             print( "Start" )
+
             dl_title = self.file_name_variable( self.youtube.title )
             itag = self.select_list["6"]
             self.youtube.streams.get_by_itag( itag ).download( filename=dl_title, output_path=os.path.abspath( "out_folder" ) )
             if "audio/mp4" in self.item_text["5"]:
                 self.mp4_to_mp3( dl_title )
+        
+            if self.mode == "movie":
+                self.select_movie()
+
             print( "End" )
-    
+            
     def mp4_to_mp3( self, file_name ):
         stream = ffmpeg.input( self.out_folder + file_name + ".mp4" )# 入力
         stream = ffmpeg.output( stream, self.out_folder + file_name + ".mp3" )# 出力
@@ -104,3 +121,30 @@ class List( tk.Frame ):
         name = name.replace( "|", "" )
 
         return name
+
+    def select_movie( self ):
+        title = self.only_audio()
+        self.video_in_audio( title.split( "_audio" )[0] )
+
+    def only_audio( self ):
+        for item in self.youtube.streams.filter( file_extension='mp4', only_audio=True ).all():
+            dl_title = self.file_name_variable( self.youtube.title ) + "_audio"
+
+            self.youtube.streams.get_by_itag( item.itag ).download( filename=dl_title, output_path=os.path.abspath( "out_folder" ) )
+            self.mp4_to_mp3( dl_title )
+
+            return dl_title
+
+        
+
+    def video_in_audio( self, title ):
+        instream_v = ffmpeg.input( self.out_folder + title + ".mp4" )#映像の読み込み
+        instream_a = ffmpeg.input( self.out_folder + title + "_audio.mp3" )#音声の読み込み
+
+        #コーデックと出力ファイルの指定
+        stream = ffmpeg.output( instream_v, instream_a, self.out_folder + title + "_keg.mp4", vcodec="copy", acodec="copy" )
+        
+        ffmpeg.run( stream )#実行
+
+        os.remove( self.out_folder + title + ".mp4" )
+        os.remove( self.out_folder + title + "_audio.mp3" )
