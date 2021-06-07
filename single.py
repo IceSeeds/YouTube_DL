@@ -10,7 +10,7 @@ import ffmpeg
 from pytube.__main__ import YouTube
 
 
-class List( tk.Frame ):
+class Single( tk.Frame ):
     def __init__( self, master, list_data, mode="all", title="LIST", width=720, height=400 ):
         super().__init__( master )
         self.pack()
@@ -91,7 +91,7 @@ class List( tk.Frame ):
     def callBack( self ):
         ret = messagebox.askyesno( "confirmation", "以下の情報でDownloadしまか？\n【" + str( self.item_text ) + "】" )
         if ret == True:
-            print( "Start" )
+            print( "Start ~ ", self.file_name_variable( self.youtube.title ) , " ~" )
 
             #dl_title = self.file_name_variable( self.youtube.title )
             if self.mode == "movie":
@@ -109,7 +109,7 @@ class List( tk.Frame ):
             if self.mode == "movie":
                 self.select_movie()
 
-            print( "End" )
+            print( "Finish ~ ", self.file_name_variable( self.youtube.title ) ," ~" )
             
     def mp4_to_mp3( self, file_name ):
         stream = ffmpeg.input( self.out_folder + file_name + ".mp4" )# 入力
