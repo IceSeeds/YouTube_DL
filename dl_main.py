@@ -1,3 +1,5 @@
+import os
+
 import tkinter as tk
 from tkinter import StringVar
 from tkinter import ttk
@@ -6,7 +8,7 @@ from tkinter.constants import BOTTOM, CENTER, LEFT, TOP
 import list
 
 class Application( tk.Frame ):
-    def __init__( self, master, title="Youtube_Download  Ver 2.0", width=300, height=150 ):
+    def __init__( self, master, title="Youtube_Download Ver 2.6", width=300, height=150 ):
         super().__init__( master )
         self.pack()
 
@@ -55,8 +57,12 @@ def main():
     
 
 
-#if __name__ == "__main__":
-main()
+if __name__ == "__main__":
+    print( "pytube upgrading..." )
+    os.system( "python -m pip install --upgrade pytube" )
+    print( "pytube finish." )
+    print( "run Youtube_Downloader." )
+    main()
 
 
 #ffmpeg-python 映像と音声の結合
