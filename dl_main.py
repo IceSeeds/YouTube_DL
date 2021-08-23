@@ -8,7 +8,7 @@ from tkinter.constants import BOTTOM, CENTER, LEFT, TOP
 import list
 
 class Application( tk.Frame ):
-    def __init__( self, master, title="Youtube_Download Ver 2.6", width=300, height=150 ):
+    def __init__( self, master, title="Youtube_Download Ver 3.1", width=300, height=150 ):
         super().__init__( master )
         self.pack()
 

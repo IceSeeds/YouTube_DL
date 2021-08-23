@@ -4,10 +4,11 @@ import pytube
 import ffmpeg
 
 
-youtube_url = "https://www.youtube.com/watch?v=vjj16qog4vQ"
-
+youtube_url = "https://www.youtube.com/watch?v=qchY7kNcLi4"
+#pytube.YouTube( youtube_url ).streams.first().download()
 youtube = pytube.YouTube( youtube_url )
-
+format_list = youtube.streams.filter( file_extension='mp4', only_audio=True ).all()
+print( format_list )
 #youtube.streams.filter( file_extension='mp4', only_audio=True )
 #dl_title = youtube.title.replace( ".", "" )
 
@@ -30,5 +31,13 @@ youtube = pytube.YouTube( youtube_url )
 #for format in format_list:
 #    print( format.i )
 
-for item in youtube.streams.filter( file_extension='mp4', only_audio=True ).all():
-    print( item.itag )
+#for item in youtube.streams.filter( file_extension='mp4', only_audio=True ).all():
+#    print( item.itag )
+
+"""
+import youtube_dl
+ydl_opts = {}
+with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    ydl.download( ['https://www.youtube.com/watch?v=qchY7kNcLi4'] )
+    ydl.list_formats()
+"""
